@@ -3,7 +3,7 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
 ?>
 
     <div class="container py-5">
-        <h1 class="page-title mb-4">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></h1>
+        <h1 class="page-title mb-4">Welcome, <?php echo h($_SESSION['username']); ?></h1>
 
         <div class="row g-4 mb-4">
             <!-- Account Information Card -->
@@ -18,15 +18,15 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <p class="text-muted mb-1">Username</p>
-                                    <p class="mb-0"><?php echo htmlspecialchars($userData['username']); ?></p>
+                                    <p class="mb-0"><?php echo h($userData['username']); ?></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="text-muted mb-1">Email</p>
-                                    <p class="mb-0"><?php echo htmlspecialchars($userData['email']); ?></p>
+                                    <p class="mb-0"><?php echo h($userData['email']); ?></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="text-muted mb-1">Joined</p>
-                                    <p class="mb-0"><?php echo htmlspecialchars($userData['created_at']); ?></p>
+                                    <p class="mb-0"><?php echo h($userData['created_at']); ?></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="text-muted mb-1">Account Status</p>
@@ -85,16 +85,16 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                     <?php if (!empty($userActivities)): ?>
                         <?php foreach ($userActivities as $activity): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($activity['activity_type']); ?></td>
-                                <td><?php echo htmlspecialchars($activity['ip_address']); ?></td>
-                                <td><?php echo htmlspecialchars($activity['created_at']); ?></td>
+                                <td><?php echo h($activity['activity_type']); ?></td>
+                                <td><?php echo h($activity['ip_address']); ?></td>
+                                <td><?php echo h($activity['created_at']); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
                             <td>Account created</td>
                             <td><?php echo $_SERVER['REMOTE_ADDR']; ?></td>
-                            <td><?php echo $userData ? htmlspecialchars($userData['created_at']) : date('Y-m-d H:i:s'); ?></td>
+                            <td><?php echo $userData ? h($userData['created_at']) : date('Y-m-d H:i:s'); ?></td>
                         </tr>
                     <?php endif; ?>
                     </tbody>

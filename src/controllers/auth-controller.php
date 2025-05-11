@@ -10,8 +10,27 @@ class AuthController {
 
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+            $validation = validateInputs(
+                [
+                    'username' => $_POST['username'] ?? '',
+                    'password' => $_POST['password'] ?? ''
+                ],
+                [
+                    'username' => 'username',
+                    'password' => 'password'
+                ]
+            );
+
+            if (!empty($validation['errors'])) {
+                foreach ($validation['errors'] as $field => $error) {
+                    prepareNotification("error", $error);
+                }
+                $this->showLogin();
+                return;
+            }
+
+            $username = $validation['values']['username'];
+            $password = $validation['values']['password'];
 
             if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
                 prepareNotification("error", "CSRF validation failed");
@@ -54,10 +73,33 @@ class AuthController {
 
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirm-password'] ?? '';
+            $validation = validateInputs(
+                [
+                    'username' => $_POST['username'] ?? '',
+                    'email' => $_POST['email'] ?? '',
+                    'password' => $_POST['password'] ?? '',
+                    '$confirmPassword' => $_POST['confirm-password'] ?? ''
+                ],
+                [
+                    'username' => 'username',
+                    'email' => 'email',
+                    'password' => 'password',
+                    '$confirmPassword' => 'confirm_password'
+                ]
+            );
+
+            if (!empty($validation['errors'])) {
+                foreach ($validation['errors'] as $field => $error) {
+                    prepareNotification("error", $error);
+                }
+                $this->showLogin();
+                return;
+            }
+
+            $username = $validation['values']['username'];
+            $email = $validation['values']['email'];
+            $password = $validation['values']['password'];
+            $confirmPassword = $validation['values']['confirm_password'];
 
             if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
                 prepareNotification("error", "CSRF validation failed");
@@ -93,7 +135,7 @@ class AuthController {
                 $result = $this->userModel->register($username, $email, $password);
 
                 if ($result) {
-                    $userId = $this->conn->lastInsertId();
+                    $userId = $this->userModel->getLastInsertId();
                     logUserActivity($userId, 'Account created');
 
                     prepareNotification("success", "Registration successful!");

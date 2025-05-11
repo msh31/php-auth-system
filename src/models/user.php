@@ -82,4 +82,14 @@ class User {
             preg_match('/[0-9]/', $password) &&
             preg_match('/[^A-Za-z0-9]/', $password);
     }
+
+    public function getLastInsertId()
+    {
+        try {
+            return $this->conn->lastInsertId();
+        } catch (PDOException $e) {
+            error_log("Error getting last insert ID: " . $e->getMessage());
+            return false;
+        }
+    }
 }

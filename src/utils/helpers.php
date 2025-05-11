@@ -1,4 +1,57 @@
 <?php
+// methods to escape output to prevent XSS
+function h($text) {
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+function sanitizeInput($input, $type = 'text') {
+    $input = trim($input);
+
+    switch ($type) {
+        case 'email':
+            $sanitized = filter_var($input, FILTER_SANITIZE_EMAIL);
+            return filter_var($sanitized, FILTER_VALIDATE_EMAIL) ? $sanitized : false;
+
+        case 'username':
+            return preg_match('/^[a-zA-Z0-9_-]{3,20}$/', $input) ? $input : false;
+
+        case 'password':
+            return strlen($input) >= 8 ? $input : false;
+
+        case 'int':
+            return filter_var($input, FILTER_VALIDATE_INT) !== false ?
+                filter_var($input, FILTER_SANITIZE_NUMBER_INT) : false;
+
+        case 'float':
+            return filter_var($input, FILTER_VALIDATE_FLOAT) !== false ?
+                filter_var($input, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION) : false;
+
+        case 'text':
+        default:
+            return h($input);
+    }
+}
+
+function validateInputs($inputs, $types) {
+    $result = [
+        'values' => [],
+        'errors' => []
+    ];
+
+    foreach ($inputs as $field => $value) {
+        $type = $types[$field] ?? 'text';
+        $sanitized = sanitizeInput($value, $type);
+
+        if ($sanitized === false) {
+            $result['errors'][$field] = "Invalid $field format";
+        } else {
+            $result['values'][$field] = $sanitized;
+        }
+    }
+
+    return $result;
+}
+
 function redirect($location) {
     header("Location: $location");
     exit;
@@ -30,7 +83,7 @@ function displayNotifications() {
         foreach ($_SESSION['notifications'] as $notification) {
             $type = $notification['type'] === 'error' ? 'notification-error' : 'notification-success';
             $output .= '<div class="notification ' . $type . '" role="alert">';
-            $output .= htmlspecialchars($notification['message']);
+            $output .= h($notification['message']);
             $output .= '</div>';
         }
         $_SESSION['notifications'] = [];
@@ -39,7 +92,7 @@ function displayNotifications() {
     if (isset($_SESSION['error_message'])) {
         $message = $_SESSION['error_message'];
         $output .= '<div class="notification notification-error" role="alert">';
-        $output .= htmlspecialchars($message);
+        $output .= h($message);
         $output .= '</div>';
         unset($_SESSION['error_message']);
     }
@@ -47,7 +100,7 @@ function displayNotifications() {
     if (isset($_SESSION['success_message'])) {
         $message = $_SESSION['success_message'];
         $output .= '<div class="notification notification-success" role="alert">';
-        $output .= htmlspecialchars($message);
+        $output .= h($message);
         $output .= '</div>';
         unset($_SESSION['success_message']);
     }
