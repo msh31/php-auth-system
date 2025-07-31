@@ -5,8 +5,12 @@ A simple yet secure login and signup system built with PHP and MySQL.
 - 🔑 User registration & login
 - 🔐 Password hashing for security
 - 🛡️ Session management
-- 🎨 Simple and clean UI 
-- 🗄️ MySQL database integration
+
+## Tech Stack:
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+![PHP](https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge&logo=php&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
 ## ⚙️ Installation
 
@@ -22,22 +26,23 @@ A simple yet secure login and signup system built with PHP and MySQL.
      DB_HOST=localhost
      DB_USER=your_username
      DB_PASS=your_password
-     DB_NAME=php_auth_system
+     DB_NAME=php_auth_db
      ```
-   - Install `vlucas/phpdotenv` (if not already installed):
+   - Install composer packages:
      ```bash
-     composer require vlucas/phpdotenv
+     composer install
      ```
 
 3. **Set up the database**
    - Import the `database.sql` file into your MySQL database.
 
 4. **Run the project**
-   - Start a local server (e.g., XAMPP, MAMP, or PHP built-in server):
-     ```bash
-     php -S localhost:8000
-     ```
-   - Open `http://localhost:8000` in your browser.
+   - Using Docker:
+      ```bash
+         docker build .
+         docker compose up -d
+      ```
+   - Open `http://localhost:8003` in your browser.
 
 ## Contributing 🤝
 Pull requests are welcome! Feel free to fork this repository and improve upon it.
