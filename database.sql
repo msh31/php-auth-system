@@ -6,15 +6,15 @@ CREATE TABLE `users` (
     `username` VARCHAR(50) NOT NULL UNIQUE,
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_at` DATETIME DEFAULT NOW(),
     PRIMARY KEY (`id`)
 );
 
 CREATE TABLE IF NOT EXISTS user_activities (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
     activity_type VARCHAR(255) NOT NULL,
     ip_address VARCHAR(45) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

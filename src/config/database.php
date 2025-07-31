@@ -14,11 +14,12 @@ class Database {
             }
 
             $host = $_ENV['DB_HOST'];
+            $port = $_ENV['DB_PORT'];
             $user = $_ENV['DB_USER'];
             $pass = $_ENV['DB_PASS'];
             $dbname = $_ENV['DB_NAME'];
 
-            $this->conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+            $this->conn = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $user, $pass);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $e) {
             error_log("Database Connection Error: " . $e->getMessage());
