@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   apache:
     build: .
     container_name: apache_server
     ports:
-      - "8080:80"
+      - "8003:80"
     volumes:
       - .:/var/www/html/
     depends_on:

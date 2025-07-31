@@ -1,5 +1,4 @@
 <?php
-// methods to escape output to prevent XSS
 function h($text) {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
@@ -148,9 +147,16 @@ function logUserActivity($userId, $activityType, $ipAddress = null) {
     $db = $database->getConnection();
 
     if ($ipAddress === null) {
-        $ipAddress = $_SERVER['REMOTE_ADDR'];
+        $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 
+                    $_SERVER['HTTP_X_REAL_IP'] ?? 
+                    $_SERVER['HTTP_CLIENT_IP'] ?? 
+                    $_SERVER['REMOTE_ADDR'] ?? 
+                    'unknown';
+        
+        if (strpos($ipAddress, ',') !== false) {
+            $ipAddress = trim(explode(',', $ipAddress)[0]);
+        }
     }
-
     try {
         $stmt = $db->prepare("
             INSERT INTO user_activities (user_id, activity_type, ip_address)

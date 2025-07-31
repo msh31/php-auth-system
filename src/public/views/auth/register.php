@@ -19,9 +19,16 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                         <h1 class="text-center fw-bold fs-4 mb-0">Create Account</h1>
                     </div>
 
-                    <form action="<?php echo BASE_URL; ?>register" method="post">
-                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                    <!-- Error Message -->
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
 
+                    <form action="<?php echo BASE_URL; ?>register" method="post">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <!-- Email -->
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>

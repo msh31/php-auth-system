@@ -17,9 +17,24 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                         <h1 class="text-center fw-bold fs-4 mb-0">Sign In</h1>
                     </div>
 
-                    <form action="<?php echo BASE_URL; ?>login" method="post">
-                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                    <!-- Success Message -->
+                    <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
+                        <div class="alert alert-success" role="alert">
+                            <i class="fa fa-check-circle me-2"></i>
+                            Registration successful! Please login with your credentials.
+                        </div>
+                    <?php endif; ?>
 
+                    <!-- Error Message -->
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form action="<?php echo BASE_URL; ?>login" method="post">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <!-- Username -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>

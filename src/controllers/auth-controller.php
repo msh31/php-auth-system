@@ -9,174 +9,101 @@ class AuthController {
     }
 
     public function login() {
+        $error = '';
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $validation = validateInputs(
-                [
-                    'username' => $_POST['username'] ?? '',
-                    'password' => $_POST['password'] ?? ''
-                ],
-                [
-                    'username' => 'username',
-                    'password' => 'password'
-                ]
-            );
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!empty($validation['errors'])) {
-                foreach ($validation['errors'] as $field => $error) {
-                    prepareNotification("error", $error);
-                }
-                $this->showLogin();
-                return;
-            }
-
-            $username = $validation['values']['username'];
-            $password = $validation['values']['password'];
-
-            if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-                prepareNotification("error", "CSRF validation failed");
-                $this->showLogin();
-                return;
-            }
-
-            if (empty($username) || empty($password)) {
-                prepareNotification("error", "Please fill in all fields.");
-                $this->showLogin();
-                return;
-            }
-
-            $user = $this->userModel->login($username, $password);
-
-            if ($user) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['logged_in'] = true;
-
-                session_regenerate_id(true);
-
-                logUserActivity($user['id'], 'Logged in');
-
-                setSuccessMessage("Login successful!");
-                redirect(BASE_URL . 'dashboard');
+            if (!$this->validateCSRF($csrf_token)) {
+                $error = "Invalid security token. Please try again.";
+            } elseif (empty($username) || empty($password)) {
+                $error = "Please fill in all fields.";
             } else {
-                prepareNotification("error", "Invalid username or password");
-                $this->showLogin();
-                return;
-            }
-        }
+                $user = $this->userModel->login($username, $password);
 
-        $this->showLogin();
-    }
+                if ($user) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['logged_in'] = true;
 
-    public function showLogin() {
-        require_once ROOT_PATH . '/public/views/auth/login.php';
-    }
-
-    public function register() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $validation = validateInputs(
-                [
-                    'username' => $_POST['username'] ?? '',
-                    'email' => $_POST['email'] ?? '',
-                    'password' => $_POST['password'] ?? '',
-                    '$confirmPassword' => $_POST['confirm-password'] ?? ''
-                ],
-                [
-                    'username' => 'username',
-                    'email' => 'email',
-                    'password' => 'password',
-                    '$confirmPassword' => 'confirm_password'
-                ]
-            );
-
-            if (!empty($validation['errors'])) {
-                foreach ($validation['errors'] as $field => $error) {
-                    prepareNotification("error", $error);
-                }
-                $this->showLogin();
-                return;
-            }
-
-            $username = $validation['values']['username'];
-            $email = $validation['values']['email'];
-            $password = $validation['values']['password'];
-            $confirmPassword = $validation['values']['confirm_password'];
-
-            if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-                prepareNotification("error", "CSRF validation failed");
-                $this->showRegister();
-                return;
-            }
-
-            if (empty($username) || empty($email) || empty($password)) {
-                prepareNotification("error", "Please fill in all fields.");
-                $this->showRegister();
-                return;
-            }
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                prepareNotification("error", "Invalid email format.");
-                $this->showRegister();
-                return;
-            }
-
-            if ($password !== $confirmPassword) {
-                prepareNotification("error", "Passwords do not match.");
-                $this->showRegister();
-                return;
-            }
-
-            if (!$this->userModel->isStrongPassword($password)) {
-                prepareNotification("error", "Password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.");
-                $this->showRegister();
-                return;
-            }
-
-            try {
-                $result = $this->userModel->register($username, $email, $password);
-
-                if ($result) {
-                    $userId = $this->userModel->getLastInsertId();
-                    logUserActivity($userId, 'Account created');
-
-                    prepareNotification("success", "Registration successful!");
-                    redirect(BASE_URL . 'login');
+                    header('Location: /dashboard');
+                    exit;
                 } else {
-                    prepareNotification("error", "Registration failed.");
-                    $this->showRegister();
-                    return;
+                    $error = "Invalid username or password";
                 }
-            } catch (Exception $e) {
-                prepareNotification("error", $e->getMessage());
-                $this->showRegister();
-                return;
             }
         }
 
-        $this->showRegister();
+        $csrf_token = $this->generateCSRF();
+        include ROOT_PATH . '/public/views/auth/login.php';
     }
+    public function register() {
+        $error = '';
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirm-password'] ?? '';
+            $csrf_token = $_POST['csrf_token'] ?? '';
 
-    public function showRegister() {
-        require_once ROOT_PATH . '/public/views/auth/register.php';
+            if (!$this->validateCSRF($csrf_token)) {
+                $error = "Invalid security token. Please try again.";
+            } elseif (empty($username) || empty($email) || empty($password)) {
+                $error = "Please fill in all fields.";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error = "Please enter a valid email.";
+            } elseif ($password !== $confirmPassword) {
+                $error = "Passwords do not match.";
+            } elseif (strlen($password) < 6) {
+                $error = "Password must be at least 6 characters.";
+            } else {
+                try {
+                    $result = $this->userModel->register($username, $email, $password);
+
+                    if ($result) {
+                        $user = $this->userModel->login($username, $password);
+                        if ($user) {
+                            $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['username'] = $user['username'];
+                            $_SESSION['logged_in'] = true;
+
+                            header('Location: /dashboard');
+                            exit;
+                        } else {
+                            header('Location: login.php?success=1');
+                            exit;
+                        }
+                    } else {
+                        $error = "Registration failed. Please try again.";
+                    }
+                } catch (Exception $e) {
+                    $error = $e->getMessage();
+                }
+            }
+        }
+
+        $csrf_token = $this->generateCSRF();
+        include ROOT_PATH . '/public/views/auth/register.php';
     }
 
     public function logout() {
-        $_SESSION = array();
+        session_destroy();
+        header('Location: index.php');
+        exit;
+    }
 
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params["path"],
-                $params["domain"],
-                $params["secure"],
-                $params["httponly"]
-            );
+    private function generateCSRF() {
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
-        session_destroy();
+        return $_SESSION['csrf_token'];
+    }
 
-        redirect(BASE_URL);
+    private function validateCSRF($token) {
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
 }
