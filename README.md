@@ -1,10 +1,10 @@
-# PHP Auth System 🔐
+# PHP Auth System 
 A simple yet secure login and signup system built with PHP and MySQL.
 
-## ✨ Features 
-- 🔑 User registration & login
-- 🔐 Password hashing for security
-- 🛡️ Session management
+## Features 
+- User registration & login
+- Password hashing for security
+- Session management
 
 ## Tech Stack:
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
@@ -12,7 +12,7 @@ A simple yet secure login and signup system built with PHP and MySQL.
 ![PHP](https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge&logo=php&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
-## ⚙️ Installation
+## Installation
 
 1. **Clone the repository**
    ```bash
@@ -44,10 +44,10 @@ A simple yet secure login and signup system built with PHP and MySQL.
       ```
    - Open `http://localhost:8003` in your browser.
 
-## Contributing 🤝
+## Contributing
 Pull requests are welcome! Feel free to fork this repository and improve upon it.
 
-## License 📜
+## License
 This project is licensed under the MIT License.
 
 ---
