@@ -15,6 +15,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/src!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!/var/www/html/src/!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN git config --global --add safe.directory /var/www/html
 
 RUN a2enmod rewrite
 WORKDIR /var/www/html
