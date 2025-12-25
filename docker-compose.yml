@@ -10,6 +10,7 @@ services:
       - db
     command: >
       bash -c "
+        composer install --no-scripts &&
         echo 'Alias /icons/ /var/www/html/src/icons/' > /etc/apache2/conf-available/icons-alias.conf &&
         a2enconf icons-alias &&
         apache2-foreground
@@ -20,8 +21,8 @@ services:
     container_name: php-auth-db
     restart: always
     environment:
-      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
       MARIADB_DATABASE: php_auth_db
+      MARIADB_ROOT_PASSWORD: hackme123
       MARIADB_USER: user
       MARIADB_PASSWORD: password
     ports:
