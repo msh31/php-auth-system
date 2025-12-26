@@ -75,38 +75,6 @@ function prepareNotification($type, $message) {
     ];
 }
 
-function displayNotifications() {
-    $output = '';
-
-    if (isset($_SESSION['notifications']) && !empty($_SESSION['notifications'])) {
-        foreach ($_SESSION['notifications'] as $notification) {
-            $type = $notification['type'] === 'error' ? 'notification-error' : 'notification-success';
-            $output .= '<div class="notification ' . $type . '" role="alert">';
-            $output .= h($notification['message']);
-            $output .= '</div>';
-        }
-        $_SESSION['notifications'] = [];
-    }
-
-    if (isset($_SESSION['error_message'])) {
-        $message = $_SESSION['error_message'];
-        $output .= '<div class="notification notification-error" role="alert">';
-        $output .= h($message);
-        $output .= '</div>';
-        unset($_SESSION['error_message']);
-    }
-
-    if (isset($_SESSION['success_message'])) {
-        $message = $_SESSION['success_message'];
-        $output .= '<div class="notification notification-success" role="alert">';
-        $output .= h($message);
-        $output .= '</div>';
-        unset($_SESSION['success_message']);
-    }
-
-    return $output;
-}
-
 function generateCSRFToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -187,4 +155,37 @@ function getUserActivities($userId, $limit = 5) {
         error_log("Error fetching user activities: " . $e->getMessage());
         return [];
     }
+}
+
+function addNotification(string $message, string $type = 'success') {
+    if (!isset($_SESSION['notifications'])) {
+        $_SESSION['notifications'] = [];
+    }
+    $_SESSION['notifications'][] = [
+        'message' => $message,
+        'type' => $type
+    ];
+}
+
+function displayNotifications(): string {
+    $output = '';
+    if (!empty($_SESSION['notifications'])) {
+        foreach ($_SESSION['notifications'] as $note) {
+            $type = $note['type'] === 'error' ? 'error' : 'success';
+            $color = $type === 'error' ? 'bg-red-600' : 'bg-green-600';
+            $icon = $type === 'error'
+                ? '<i class="fa fa-exclamation-circle"></i>'
+                : '<i class="fa fa-check-circle"></i>';
+
+            $output .= '
+                <div class="notification ' . $color . ' relative w-full mb-4 p-4 pr-10 rounded-lg shadow-lg text-white flex items-start transition-transform duration-300 transform -translate-x-full" role="alert">
+                    <span class="mr-3">' . $icon . '</span>
+                    <span class="flex-1">' . htmlspecialchars($note['message']) . '</span>
+                    <button class="absolute top-2 right-3 text-white text-lg font-bold hover:text-gray-200">&times;</button>
+                </div>
+            ';
+        }
+        unset($_SESSION['notifications']);
+    }
+    return $output;
 }

@@ -1,3 +1,7 @@
+<?php
+require_once ROOT_PATH . '/utils/helpers.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
