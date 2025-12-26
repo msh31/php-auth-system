@@ -16,7 +16,7 @@ class AuthController {
             $password = $_POST['password'] ?? '';
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!validateCSRF($csrf_token)) {
+            if (!validateCSRFToken($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
             } elseif (empty($username) || empty($password)) {
                 $error = "Please fill in all fields.";
@@ -28,6 +28,7 @@ class AuthController {
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['logged_in'] = true;
 
+                    $this->userModel->logUserActivity($user['id'], "login");
                     header('Location: /dashboard');
                     exit;
                 } else {
@@ -36,7 +37,7 @@ class AuthController {
             }
         }
 
-        $csrf_token = generateCSRF();
+        $csrf_token = generateCSRFToken();
         include ROOT_PATH . '/public/views/auth/login.php';
     }
     public function register() {
@@ -49,7 +50,7 @@ class AuthController {
             $confirmPassword = $_POST['confirm-password'] ?? '';
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!validateCSRF($csrf_token)) {
+            if (!validateCSRFToken($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
             } elseif (empty($username) || empty($email) || empty($password)) {
                 $error = "Please fill in all fields.";
@@ -73,6 +74,7 @@ class AuthController {
                             $_SESSION['logged_in'] = true;
 
                             header('Location: /dashboard');
+                            $this->userModel->logUserActivity($user['id'], "registration");
                             exit;
                         } else {
                             header('Location: login.php?success=1');
@@ -87,11 +89,12 @@ class AuthController {
             }
         }
 
-        $csrf_token = generateCSRF();
+        $csrf_token = generateCSRFToken();
         include ROOT_PATH . '/public/views/auth/register.php';
     }
 
     public function logout() {
+        $this->userModel->logUserActivity($user['id'], "logout");
         session_destroy();
         header('Location: ' . BASE_URL . 'home');
         exit;
