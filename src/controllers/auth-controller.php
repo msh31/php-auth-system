@@ -16,7 +16,7 @@ class AuthController {
             $password = $_POST['password'] ?? '';
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!$this->validateCSRF($csrf_token)) {
+            if (!validateCSRF($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
             } elseif (empty($username) || empty($password)) {
                 $error = "Please fill in all fields.";
@@ -36,7 +36,7 @@ class AuthController {
             }
         }
 
-        $csrf_token = $this->generateCSRF();
+        $csrf_token = generateCSRF();
         include ROOT_PATH . '/public/views/auth/login.php';
     }
     public function register() {
@@ -49,7 +49,7 @@ class AuthController {
             $confirmPassword = $_POST['confirm-password'] ?? '';
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!$this->validateCSRF($csrf_token)) {
+            if (!validateCSRF($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
             } elseif (empty($username) || empty($email) || empty($password)) {
                 $error = "Please fill in all fields.";
@@ -87,7 +87,7 @@ class AuthController {
             }
         }
 
-        $csrf_token = $this->generateCSRF();
+        $csrf_token = generateCSRF();
         include ROOT_PATH . '/public/views/auth/register.php';
     }
 
@@ -95,17 +95,5 @@ class AuthController {
         session_destroy();
         header('Location: ' . BASE_URL . 'home');
         exit;
-    }
-
-    private function generateCSRF() {
-        if (!isset($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-
-        return $_SESSION['csrf_token'];
-    }
-
-    private function validateCSRF($token) {
-        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
 }
