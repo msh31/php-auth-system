@@ -5,6 +5,4 @@
 composer.lock
 /node_modules
 package-lock.json
-src/public/assets/css/input.css
-compile.bat
-tailwindcss
+src/public/assets/css/output.css
