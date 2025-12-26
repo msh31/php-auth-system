@@ -3,17 +3,17 @@ services:
     build: .
     container_name: php-auth-system
     ports:
-      - "8003:80"
+      - "8004:80"
     volumes:
       - .:/var/www/html/
     depends_on:
       - db
     command: >
       bash -c "
-        composer install --no-scripts &&
-        echo 'Alias /icons/ /var/www/html/src/icons/' > /etc/apache2/conf-available/icons-alias.conf &&
-        a2enconf icons-alias &&
-        apache2-foreground
+      composer install --no-scripts &&
+      echo 'Alias /icons/ /var/www/html/src/icons/' > /etc/apache2/conf-available/icons-alias.conf &&
+      a2enconf icons-alias &&
+      apache2-foreground
       "
 
   db:
@@ -26,4 +26,4 @@ services:
       MARIADB_USER: user
       MARIADB_PASSWORD: password
     ports:
-      - "9908:3306"
+      - "3307:3306" # host:container
