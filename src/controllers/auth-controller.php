@@ -57,8 +57,10 @@ class AuthController {
                 $error = "Please enter a valid email.";
             } elseif ($password !== $confirmPassword) {
                 $error = "Passwords do not match.";
-            } elseif (strlen($password) < 6) {
-                $error = "Password must be at least 6 characters.";
+            } elseif (strlen($password) < 8) {
+                $error = "Password must be at least 8 characters.";
+            } elseif(!$this->userModel->isStrongPassword($password)) {
+                $error = "Password does not contain an UPPER, lower, number or special character!";
             } else {
                 try {
                     $result = $this->userModel->register($username, $email, $password);
