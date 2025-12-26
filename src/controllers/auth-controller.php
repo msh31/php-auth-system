@@ -91,7 +91,7 @@ class AuthController {
 
     public function logout() {
         session_destroy();
-        header('Location: index.php');
+        header('Location: ' . BASE_URL . 'home');
         exit;
     }
 
