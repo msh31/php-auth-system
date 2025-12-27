@@ -1,13 +1,14 @@
 services:
   apache:
     build: .
-    container_name: php-auth-system
-    ports:
-      - "8004:80"
+    container_name: auth-app
+    restart: unless-stopped
     volumes:
       - .:/var/www/html/
     depends_on:
       - db
+    networks:
+      - internal
     command: >
       bash -c "
       composer install --no-scripts &&
@@ -16,14 +17,34 @@ services:
       apache2-foreground
       "
 
+    # dev-only settings
+    ports:
+      - "6969:80"
+    profiles:
+      - dev
+
   db:
     image: mariadb:11
-    container_name: php-auth-db
-    restart: always
+    container_name: auth-db
+    restart: unless-stopped
     environment:
-      MARIADB_DATABASE: php_auth_db
-      MARIADB_ROOT_PASSWORD: hackme123
-      MARIADB_USER: user
-      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: ${DB_NAME} 
+      MARIADB_ROOT_PASSWORD: ${DB_PASS} # not ideal but works for now
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
     ports:
-      - "3307:3306" # host:container
+      - "3307:3306"   # optional for dev/remote access
+    networks:
+      - internal
+      - proxy   # attach to NPM in prod
+    profiles:
+      - prod
+
+networks:
+  internal:
+    driver: bridge
+
+  proxy:
+    external: true
+    name: nginx-stack_web_network
+

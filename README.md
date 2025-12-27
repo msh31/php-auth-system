@@ -39,10 +39,12 @@ A simple yet secure login and signup system built with PHP and MySQL.
 4. **Run the project**
    - Using Docker:
       ```bash
-         docker build .
-         docker compose up -d
+        # dev
+        docker compose --profile dev up -d
+        # prod
+        docker compose --profile prod up -d
       ```
-   - Open `http://localhost:8003` in your browser.
+   - Open `http://localhost:6969` in your browser.
 
 ## Contributing
 Pull requests are welcome! Feel free to fork this repository and improve upon it.
