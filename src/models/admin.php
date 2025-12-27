@@ -11,18 +11,14 @@ class Admin
         try {
             $stmt = $this->db->prepare("
                 SELECT 
-                    u.id,
-                    u.username,
-                    u.email,
-                    u.is_admin,
-                    u.created_at,
-                    COUNT(ug.id) as game_count,
-                    SUM(ug.playtime_hours) as total_hours
+                u.id,
+                u.username,
+                u.email,
+                u.is_admin,
+                u.created_at
                 FROM users u
-                LEFT JOIN user_games ug ON u.id = ug.user_id
-                GROUP BY u.id
                 ORDER BY u.created_at DESC
-            ");
+                ");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

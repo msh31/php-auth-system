@@ -1,5 +1,7 @@
 <?php
-$pageTitle = 'Manage Users - Admin';
+$pageTitle = 'Admin Dashboard - Steam Tracker';
+$currentPage = 'admin';
+$useSidebar = false;
 require_once ROOT_PATH . '/public/views/includes/header.php';
 ?>
 
@@ -7,122 +9,89 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold mb-2">Manage Users</h1>
-                <p class="text-[var(--text-muted)]">View and manage all user accounts</p>
+                <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+                <p class="text-[var(--text-muted)]">Manage users and system settings</p>
             </div>
-            <div class="flex gap-3">
-                <a href="<?php echo BASE_URL; ?>admin/create-user" class="px-4 py-2 bg-[var(--btn-primary)] hover:bg-[var(--btn-hover)] text-white rounded-lg transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Add User
-                </a>
-                <a href="<?php echo BASE_URL; ?>" class="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-white rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Back
-                </a>
+            <a href="<?php echo BASE_URL; ?>dashboard" class="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] text-white rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back to App
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-[var(--text-secondary)]">Total Users</h3>
+                    <i class="fas fa-users text-[var(--btn-primary)] text-xl"></i>
+                </div>
+                <p class="text-3xl font-bold"><?php echo count($users); ?></p>
             </div>
         </div>
 
-        <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden">
+        <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Quick Actions</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="<?php echo BASE_URL; ?>admin/users" class="p-4 bg-[var(--bg-input)] rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+                    <i class="fas fa-users text-2xl text-[var(--btn-primary)] mb-2"></i>
+                    <h3 class="font-semibold mb-1">Manage Users</h3>
+                    <p class="text-sm text-[var(--text-muted)]">View, edit, and delete users</p>
+                </a>
+
+                <a href="<?php echo BASE_URL; ?>admin/create-user" class="p-4 bg-[var(--bg-input)] rounded-lg hover:bg-[var(--bg-secondary)] transition-colors">
+                    <i class="fas fa-user-plus text-2xl text-[var(--success)] mb-2"></i>
+                    <h3 class="font-semibold mb-1">Add User</h3>
+                    <p class="text-sm text-[var(--text-muted)]">Create a new user account</p>
+                </a>
+
+                <!-- <a href="<?php echo BASE_URL; ?>settings" class="p-4 bg-[var(--bg-input)] rounded-lg hover:bg-[var(--bg-secondary)] transition-colors"> -->
+                <!--     <i class="fas fa-cog text-2xl text-[var(--text-muted)] mb-2"></i> -->
+                <!--     <h3 class="font-semibold mb-1">Settings</h3> -->
+                <!--     <p class="text-sm text-[var(--text-muted)]">System configuration</p> -->
+                <!-- </a> -->
+            </div>
+        </div>
+
+        <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-4">Recent Users</h2>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
-                        <tr class="bg-[var(--bg-input)] border-b border-[var(--border-color)]">
-                            <th class="text-left py-4 px-6 text-sm font-semibold">User</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Email</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Games</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Playtime</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Joined</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Role</th>
-                            <th class="text-right py-4 px-6 text-sm font-semibold">Actions</th>
+                        <tr class="border-b border-[var(--border-color)]">
+                            <th class="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">User</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">Email</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">Joined</th>
+                            <th class="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">Role</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($users as $user): ?>
+                        <?php foreach (array_slice($users, 0, 5) as $user): ?>
                         <tr class="border-b border-[var(--border-color)] hover:bg-[var(--bg-input)]">
-                            <td class="py-4 px-6">
+                            <td class="py-3 px-4">
                                 <span class="font-medium"><?php echo h($user['username']); ?></span>
                             </td>
-                            <td class="py-4 px-6 text-sm text-[var(--text-muted)]"><?php echo h($user['email']); ?></td>
-                            <td class="py-4 px-6 text-sm"><?php echo $user['game_count']; ?></td>
-                            <td class="py-4 px-6 text-sm"><?php echo number_format($user['total_hours'] ?? 0, 0); ?>h</td>
-                            <td class="py-4 px-6 text-sm text-[var(--text-muted)]"><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
-                            <td class="py-4 px-6">
+                            <td class="py-3 px-4 text-sm text-[var(--text-muted)]"><?php echo h($user['email']); ?></td>
+                            <td class="py-3 px-4 text-sm text-[var(--text-muted)]"><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
+                            <td class="py-3 px-4">
                                 <?php if ($user['is_admin']): ?>
                                 <span class="px-2 py-1 bg-[var(--btn-primary)]/20 text-[var(--btn-primary)] rounded text-xs font-semibold">Admin</span>
                                 <?php else: ?>
                                 <span class="px-2 py-1 bg-[var(--text-muted)]/20 text-[var(--text-muted)] rounded text-xs">User</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="flex justify-end gap-2">
-                                    <a href="<?php echo BASE_URL; ?>admin/edit-user?id=<?php echo $user['id']; ?>" class="px-3 py-1 bg-[var(--btn-primary)]/20 text-[var(--btn-primary)] rounded hover:bg-[var(--btn-primary)]/30 transition-colors text-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                    <button onclick="deleteUser(<?php echo $user['id']; ?>, '<?php echo h($user['username']); ?>')" class="px-3 py-1 bg-[var(--danger)]/20 text-[var(--danger)] rounded hover:bg-[var(--danger)]/30 transition-colors text-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4">
+                <a href="<?php echo BASE_URL; ?>admin/users" class="text-sm text-[var(--btn-primary)] hover:underline">
+                    View all users →
+                </a>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-function deleteUser(userId, username) {
-    if (!confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
-        return;
-    }
-
-    fetch('<?php echo BASE_URL; ?>admin/delete-user', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            user_id: userId
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('success', data.message);
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showNotification('error', data.message);
-            }
-        })
-        .catch(error => {
-            showNotification('error', 'An error occurred');
-            console.error('Error:', error);
-        });
-}
-
-function showNotification(type, message) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-xl max-w-md z-50 ${
-type === 'success' ? 'bg-[var(--success)] text-white' : 'bg-[var(--danger)] text-white'
-}`;
-    notification.innerHTML = `
-<div class="flex items-center gap-3">
-    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-    <span>${message}</span>
-</div>
-`;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transition = 'opacity 0.3s';
-        setTimeout(() => notification.remove(), 300);
-    }, 5000);
-}
-</script>
 
 <?php
 require_once ROOT_PATH . '/public/views/includes/footer.php';
