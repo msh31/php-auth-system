@@ -21,12 +21,15 @@ $router->get('/logout', 'AuthController', 'logout');
 $router->get('/', 'HomeController', 'index');
 $router->get('/home', 'HomeController', 'index');
 $router->get('/dashboard', 'DashboardController', 'index');
+$router->post('/dashboard', 'DashboardController', 'index');
 
 // admin routes
 $router->get('/admin', 'AdminController', 'index');
-$router->get('/users', 'AdminController', 'users');
-$router->post('/admin/create-user', 'AdminController', 'create-user');
-$router->post('/admin/edit-user', 'AdminController', 'edit-user');
-$router->post('/admin/delete-user', 'AdminController', 'delete-user');
+$router->get('/admin/users', 'AdminController', 'users');
+$router->get('/admin/create-user', 'AdminController', 'createUser');
+$router->post('/admin/create-user', 'AdminController', 'createUser');
+$router->get('/admin/edit-user', 'AdminController', 'editUser');
+$router->post('/admin/edit-user', 'AdminController', 'editUser');
+$router->post('/admin/delete-user', 'AdminController', 'deleteUser');
 
 $router->dispatch();

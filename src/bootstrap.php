@@ -15,7 +15,7 @@ if (file_exists($autoloadPath)) {
 }
 
 if (session_status() == PHP_SESSION_NONE) {
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net;");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;");
     header("X-Frame-Options: DENY");
     header("X-XSS-Protection: 1; mode=block");
 
