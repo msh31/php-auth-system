@@ -27,8 +27,6 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                         <tr class="bg-[var(--bg-input)] border-b border-[var(--border-color)]">
                             <th class="text-left py-4 px-6 text-sm font-semibold">User</th>
                             <th class="text-left py-4 px-6 text-sm font-semibold">Email</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Games</th>
-                            <th class="text-left py-4 px-6 text-sm font-semibold">Playtime</th>
                             <th class="text-left py-4 px-6 text-sm font-semibold">Joined</th>
                             <th class="text-left py-4 px-6 text-sm font-semibold">Role</th>
                             <th class="text-right py-4 px-6 text-sm font-semibold">Actions</th>
@@ -41,8 +39,6 @@ require_once ROOT_PATH . '/public/views/includes/header.php';
                                 <span class="font-medium"><?php echo h($user['username']); ?></span>
                             </td>
                             <td class="py-4 px-6 text-sm text-[var(--text-muted)]"><?php echo h($user['email']); ?></td>
-                            <td class="py-4 px-6 text-sm"><?php echo $user['game_count']; ?></td>
-                            <td class="py-4 px-6 text-sm"><?php echo number_format($user['total_hours'] ?? 0, 0); ?>h</td>
                             <td class="py-4 px-6 text-sm text-[var(--text-muted)]"><?php echo date('M j, Y', strtotime($user['created_at'])); ?></td>
                             <td class="py-4 px-6">
                                 <?php if ($user['is_admin']): ?>
