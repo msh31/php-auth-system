@@ -29,17 +29,30 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_DATABASE: ${DB_NAME} 
-      MARIADB_ROOT_PASSWORD: ${DB_PASS} # not ideal but works for now
+      MARIADB_ROOT_PASSWORD: ${DB_PASS}
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASS}
     ports:
-      - "3307:3306"   # optional for dev/remote access
+      - "3307:3306"
     networks:
       - internal
-      - proxy   # attach to NPM in prod
+    profiles:
+      - dev
+
+  db-prod:
+    image: mariadb:11
+    container_name: auth-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME} 
+      MARIADB_ROOT_PASSWORD: ${DB_PASS}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+    networks:
+      - internal
+      - proxy
     profiles:
       - prod
-      - dev
 
 networks:
   internal:
