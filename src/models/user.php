@@ -1,26 +1,29 @@
 <?php
-class User {
+class User
+{
     private $conn;
-    private $table = 'users';
+    private $table = "users";
 
     public $id;
     public $username;
     public $email;
     public $password;
 
-    public function __construct() {
+    public function __construct()
+    {
         $database = Database::getInstance();
         $this->conn = $database->getConnection();
     }
 
-    public function login($username, $password) {
+    public function login($username, $password)
+    {
         try {
             $sql = "SELECT * FROM users WHERE username = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && password_verify($password, $user['password'])) {
+            if ($user && password_verify($password, $user["password"])) {
                 return $user;
             }
 
@@ -31,14 +34,17 @@ class User {
         }
     }
 
-    public function register($username, $email, $password) {
+    public function register($username, $email, $password)
+    {
         try {
             $sql = "SELECT COUNT(*) FROM users WHERE username = ? OR email = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$username, $email]);
 
             if ($stmt->fetchColumn() > 0) {
-                $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                $stmt = $this->conn->prepare(
+                    "SELECT COUNT(*) FROM users WHERE username = ?",
+                );
                 $stmt->execute([$username]);
 
                 if ($stmt->fetchColumn() > 0) {
@@ -50,7 +56,8 @@ class User {
 
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-            $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+            $sql =
+                "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
             $stmt = $this->conn->prepare($sql);
             $result = $stmt->execute([$username, $email, $hashedPassword]);
 
@@ -63,9 +70,11 @@ class User {
         }
     }
 
-    public function getUserById($id) {
+    public function getUserById($id)
+    {
         try {
-            $sql = "SELECT id, username, email, created_at FROM users WHERE id = ?";
+            $sql =
+                "SELECT id, username, email, created_at FROM users WHERE id = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,15 +84,17 @@ class User {
         }
     }
 
-    public function isStrongPassword($password) {
+    public function isStrongPassword($password)
+    {
         return strlen($password) >= 8 &&
-            preg_match('/[A-Z]/', $password) &&
-            preg_match('/[a-z]/', $password) &&
-            preg_match('/[0-9]/', $password) &&
-            preg_match('/[^A-Za-z0-9]/', $password);
+            preg_match("/[A-Z]/", $password) &&
+            preg_match("/[a-z]/", $password) &&
+            preg_match("/[0-9]/", $password) &&
+            preg_match("/[^A-Za-z0-9]/", $password);
     }
 
-    public function getLastInsertId() {
+    public function getLastInsertId()
+    {
         try {
             return $this->conn->lastInsertId();
         } catch (PDOException $e) {
@@ -92,7 +103,8 @@ class User {
         }
     }
 
-    public function getUserActivities($userId, $limit = 5) {
+    public function getUserActivities($userId, $limit = 5)
+    {
         try {
             $sql = "
             SELECT activity_type, ip_address, created_at
@@ -112,16 +124,17 @@ class User {
         }
     }
 
-    public function logUserActivity($userId, $activityType, $ipAddress = null) {
+    public function logUserActivity($userId, $activityType, $ipAddress = null)
+    {
         if ($ipAddress === null) {
-            $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 
-                $_SERVER['HTTP_X_REAL_IP'] ?? 
-                    $_SERVER['HTTP_CLIENT_IP'] ?? 
-                        $_SERVER['REMOTE_ADDR'] ?? 
-                            'unknown';
+            $ipAddress =
+                $_SERVER["HTTP_X_FORWARDED_FOR"] ??
+                ($_SERVER["HTTP_X_REAL_IP"] ??
+                    ($_SERVER["HTTP_CLIENT_IP"] ??
+                        ($_SERVER["REMOTE_ADDR"] ?? "unknown")));
 
-            if (strpos($ipAddress, ',') !== false) {
-                $ipAddress = trim(explode(',', $ipAddress)[0]);
+            if (strpos($ipAddress, ",") !== false) {
+                $ipAddress = trim(explode(",", $ipAddress)[0]);
             }
         }
         try {
@@ -134,6 +147,42 @@ class User {
         } catch (PDOException $e) {
             error_log("Error logging user activity: " . $e->getMessage());
             return false;
+        }
+    }
+
+    public function updateProfile($userId, $newUsername, $currentPassword)
+    {
+        try {
+            $sql = "SELECT * FROM users WHERE id = ?";
+            $stmt = $this->conn->prepare($sql);
+
+            $stmt->execute([$userId]);
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                throw new Exception("User not found.");
+            }
+            if (!password_verify($currentPassword, $user["password"])) {
+                throw new Exception("Current password is incorrect.");
+            }
+
+            $sql = "SELECT COUNT(*) FROM users WHERE username = ? AND id != ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$newUsername, $userId]);
+
+            if ($stmt->fetchColumn() > 0) {
+                throw new Exception("Username already taken.");
+            }
+
+            $sql = "UPDATE users SET username = ? WHERE id = ?";
+            $stmt = $this->conn->prepare($sql);
+            $result = $stmt->execute([$newUsername, $userId]);
+
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Error updating profile: " . $e->getMessage());
+            throw new Exception("Failed to update profile.");
         }
     }
 }
