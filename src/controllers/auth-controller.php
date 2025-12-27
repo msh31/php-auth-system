@@ -73,8 +73,8 @@ class AuthController {
                             $_SESSION['username'] = $user['username'];
                             $_SESSION['logged_in'] = true;
 
-                            header('Location: /dashboard');
                             $this->userModel->logUserActivity($user['id'], "registration");
+                            header('Location: /dashboard');
                             exit;
                         } else {
                             header('Location: login.php?success=1');
@@ -94,7 +94,7 @@ class AuthController {
     }
 
     public function logout() {
-        $this->userModel->logUserActivity($user['id'], "logout");
+        $this->userModel->logUserActivity($_SESSION['user_id'], "logout");
         session_destroy();
         header('Location: ' . BASE_URL . 'home');
         exit;

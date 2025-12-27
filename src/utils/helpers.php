@@ -110,53 +110,6 @@ function debug($var, $die = true) {
     if ($die) die();
 }
 
-function logUserActivity($userId, $activityType, $ipAddress = null) {
-    $database = Database::getInstance();
-    $db = $database->getConnection();
-
-    if ($ipAddress === null) {
-        $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 
-                    $_SERVER['HTTP_X_REAL_IP'] ?? 
-                    $_SERVER['HTTP_CLIENT_IP'] ?? 
-                    $_SERVER['REMOTE_ADDR'] ?? 
-                    'unknown';
-        
-        if (strpos($ipAddress, ',') !== false) {
-            $ipAddress = trim(explode(',', $ipAddress)[0]);
-        }
-    }
-    try {
-        $stmt = $db->prepare("
-            INSERT INTO user_activities (user_id, activity_type, ip_address)
-            VALUES (?, ?, ?)
-        ");
-        return $stmt->execute([$userId, $activityType, $ipAddress]);
-    } catch (PDOException $e) {
-        error_log("Error logging user activity: " . $e->getMessage());
-        return false;
-    }
-}
-
-function getUserActivities($userId, $limit = 5) {
-    $database = Database::getInstance();
-    $db = $database->getConnection();
-
-    try {
-        $stmt = $db->prepare("
-            SELECT activity_type, ip_address, created_at
-            FROM user_activities
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-            LIMIT ?
-        ");
-        $stmt->execute([$userId, $limit]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Error fetching user activities: " . $e->getMessage());
-        return [];
-    }
-}
-
 function addNotification(string $message, string $type = 'success') {
     if (!isset($_SESSION['notifications'])) {
         $_SESSION['notifications'] = [];

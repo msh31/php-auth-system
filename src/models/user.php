@@ -83,12 +83,56 @@ class User {
             preg_match('/[^A-Za-z0-9]/', $password);
     }
 
-    public function getLastInsertId()
-    {
+    public function getLastInsertId() {
         try {
             return $this->conn->lastInsertId();
         } catch (PDOException $e) {
             error_log("Error getting last insert ID: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getUserActivities($userId, $limit = 5) {
+        try {
+            $sql = "
+            SELECT activity_type, ip_address, created_at
+            FROM user_activities
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT ?
+            ";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+            $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching user activities: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function logUserActivity($userId, $activityType, $ipAddress = null) {
+        if ($ipAddress === null) {
+            $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 
+                $_SERVER['HTTP_X_REAL_IP'] ?? 
+                    $_SERVER['HTTP_CLIENT_IP'] ?? 
+                        $_SERVER['REMOTE_ADDR'] ?? 
+                            'unknown';
+
+            if (strpos($ipAddress, ',') !== false) {
+                $ipAddress = trim(explode(',', $ipAddress)[0]);
+            }
+        }
+        try {
+            $sql = "
+                INSERT INTO user_activities (user_id, activity_type, ip_address)
+            VALUES (?, ?, ?)
+            ";
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([$userId, $activityType, $ipAddress]);
+        } catch (PDOException $e) {
+            error_log("Error logging user activity: " . $e->getMessage());
             return false;
         }
     }
