@@ -92,6 +92,9 @@
         <div class="flex flex-wrap gap-3">
             <a href="<?= BASE_URL ?>" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded transition">Home</a>
             <a href="<?= BASE_URL ?>logout" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded transition">Logout</a>
+            <?php if (isAdmin()): ?>
+            <a href="<?= BASE_URL ?>admin" class="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded transition <?php echo ($currentPage ?? '') == 'admin' ? 'active' : ''; ?>">Admin Panel</a>
+            <?php endif; ?>
         </div>
 
     </div>

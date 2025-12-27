@@ -142,3 +142,21 @@ function displayNotifications(): string {
     }
     return $output;
 }
+
+function isAdmin() {
+    return isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+}
+
+function requireAdmin() {
+    if (!isLoggedIn()) {
+        prepareNotification("error", "Please log in to access this page.");
+        redirect(BASE_URL . 'login');
+        exit;
+    }
+    
+    if (!isAdmin()) {
+        prepareNotification("error", "Access denied. Admin privileges required.");
+        redirect(BASE_URL . 'dashboard');
+        exit;
+    }
+}

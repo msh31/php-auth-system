@@ -4,6 +4,7 @@ USE `php_auth_db`;
 CREATE TABLE `users` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(50) NOT NULL UNIQUE,
+    `is_admin` TINYINT(1) DEFAULT 0,
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
     `created_at` DATETIME DEFAULT NOW(),

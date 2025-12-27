@@ -37,6 +37,7 @@ class AuthController {
                 if ($user) {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
+                    $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
                     $_SESSION['logged_in'] = true;
 
                     $this->userModel->logUserActivity($user['id'], "login");
@@ -94,6 +95,7 @@ class AuthController {
                             if ($user) {
                                 $_SESSION['user_id'] = $user['id'];
                                 $_SESSION['username'] = $user['username'];
+                                $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
                                 $_SESSION['logged_in'] = true;
 
                                 $this->userModel->logUserActivity($user['id'], "registration");
