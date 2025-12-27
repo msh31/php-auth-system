@@ -10,17 +10,28 @@ class AuthController {
 
     public function login() {
         $error = '';
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+            $validation = validateInputs(
+                [
+                    'username' => $_POST['username'] ?? '',
+                    'password' => $_POST['password'] ?? ''
+                ],
+                [
+                    'username' => 'username',
+                    'password' => 'password'
+                ]
+            );
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!validateCSRFToken($csrf_token)) {
+            if (!empty($validation['errors'])) {
+                $error = implode(', ', $validation['errors']);
+            } elseif(!validateCSRFToken($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
-            } elseif (empty($username) || empty($password)) {
-                $error = "Please fill in all fields.";
             } else {
+                $username = $validation['values']['username'];
+                $password = $validation['values']['password'];
+
                 $user = $this->userModel->login($username, $password);
 
                 if ($user) {
@@ -40,53 +51,67 @@ class AuthController {
         $csrf_token = generateCSRFToken();
         include ROOT_PATH . '/public/views/auth/login.php';
     }
+
     public function register() {
         $error = '';
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? '';
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
+            $validation = validateInputs(
+                [
+                    'username' => $_POST['username'] ?? '',
+                    'email' => $_POST['email'] ?? '',
+                    'password' => $_POST['password'] ?? ''
+                ],
+                [
+                    'username' => 'username',
+                    'email' => 'email', 
+                    'password' => 'password'
+                ]
+            );
+
             $confirmPassword = $_POST['confirm-password'] ?? '';
             $csrf_token = $_POST['csrf_token'] ?? '';
 
-            if (!validateCSRFToken($csrf_token)) {
+            if (!empty($validation['errors'])) {
+                $error = implode(', ', $validation['errors']);
+            } elseif(!validateCSRFToken($csrf_token)) {
                 $error = "Invalid security token. Please try again.";
-            } elseif (empty($username) || empty($email) || empty($password)) {
-                $error = "Please fill in all fields.";
-            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $error = "Please enter a valid email.";
-            } elseif ($password !== $confirmPassword) {
-                $error = "Passwords do not match.";
-            } elseif (strlen($password) < 8) {
-                $error = "Password must be at least 8 characters.";
-            } elseif(!$this->userModel->isStrongPassword($password)) {
-                $error = "Password does not contain an UPPER, lower, number or special character!";
             } else {
-                try {
-                    $result = $this->userModel->register($username, $email, $password);
+                $username = $validation['values']['username'];
+                $email = $validation['values']['email'];
+                $password = $validation['values']['password'];
 
-                    if ($result) {
-                        $user = $this->userModel->login($username, $password);
-                        if ($user) {
-                            $_SESSION['user_id'] = $user['id'];
-                            $_SESSION['username'] = $user['username'];
-                            $_SESSION['logged_in'] = true;
+                if ($password !== $confirmPassword) {
+                    $error = "Passwords do not match.";
+                } elseif(!$this->userModel->isStrongPassword($password)) {
+                    $error = "Password does not contain an UPPER, lower, number or special character!";
+                } else {
+                    try {
+                        $result = $this->userModel->register($username, $email, $password);
 
-                            $this->userModel->logUserActivity($user['id'], "registration");
-                            header('Location: /dashboard');
-                            exit;
+                        if ($result) {
+                            $user = $this->userModel->login($username, $password);
+                            if ($user) {
+                                $_SESSION['user_id'] = $user['id'];
+                                $_SESSION['username'] = $user['username'];
+                                $_SESSION['logged_in'] = true;
+
+                                $this->userModel->logUserActivity($user['id'], "registration");
+                                header('Location: /dashboard');
+                                exit;
+                            } else {
+                                header('Location: login.php?success=1');
+                                exit;
+                            }
                         } else {
-                            header('Location: login.php?success=1');
-                            exit;
+                            $error = "Registration failed. Please try again.";
                         }
-                    } else {
-                        $error = "Registration failed. Please try again.";
+                    } catch (Exception $e) {
+                        $error = $e->getMessage();
                     }
-                } catch (Exception $e) {
-                    $error = $e->getMessage();
                 }
             }
+
         }
 
         $csrf_token = generateCSRFToken();
