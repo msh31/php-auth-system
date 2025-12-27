@@ -39,6 +39,7 @@ services:
       - proxy   # attach to NPM in prod
     profiles:
       - prod
+      - dev
 
 networks:
   internal:
