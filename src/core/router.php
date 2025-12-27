@@ -18,7 +18,8 @@ class Router {
         $request = $_SERVER['REQUEST_URI'];
         $basePath = '/';
 
-        $request = trim(str_replace($basePath, '', $request), '/');
+        $request = parse_url($request, PHP_URL_PATH);
+        $request = ltrim($request, '/'); 
         $key = $method . ' /' . $request;
 
         if(array_key_exists($key, $this->routes)) {
@@ -30,7 +31,6 @@ class Router {
             $controller->$methodName();
         }
         else {
-            echo "404 - Route not found";
             http_response_code(404);       
         }
     }
