@@ -154,10 +154,17 @@ class User {
                 throw new Exception("Current password is incorrect.");
             }
 
-            // TODO: check for duplicate username
-            // TODO: update the username
-            // TODO: return success
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE username = ? AND id != ?");
+            $stmt->execute([$newUsername, $userId]);
 
+            if ($stmt->fetchColumn() > 0) {
+                throw new Exception("Username already taken.");
+            } elseif($stmt->fetchColumn() == 0) {
+                throw new Exception("This is your current username.");
+            }
+
+            $stmt = $this->conn->prepare("UPDATE users SET username = ? WHERE id = ?");
+            return $stmt->execute([$newUsername, $userId]);
         } catch (PDOException $e) {
             error_log("Error updating profile: " . $e->getMessage());
             throw new Exception("Failed to update profile.");
