@@ -32,9 +32,9 @@ class AuthController {
                 $username = $validation['values']['username'];
                 $password = $validation['values']['password'];
 
-                $user = $this->userModel->login($username, $password);
+                try {
+                    $user = $this->userModel->login($username, $password);
 
-                if ($user) {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
@@ -43,8 +43,9 @@ class AuthController {
                     $this->userModel->logUserActivity($user['id'], "login");
                     header('Location: /dashboard');
                     exit;
-                } else {
-                    $error = "Invalid username or password";
+                } catch (Exception $e) {
+                    $error = $e->getMessage();
+                    error_log("login error: " . $e->getMessage());
                 }
             }
         }
