@@ -28,5 +28,19 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+spl_autoload_register(function ($class) {
+    $controllerFile = ROOT_PATH . '/controllers/' . strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $class)) . '.php';
+
+    if (file_exists($controllerFile)) {
+        require_once $controllerFile;
+        return;
+    }
+    
+    $modelFile = ROOT_PATH . '/models/' . strtolower($class) . '.php';
+    if (file_exists($modelFile)) {
+        require_once $modelFile;
+    }
+});
+
 require_once ROOT_PATH . '/config/database.php';
 require_once ROOT_PATH . '/utils/helpers.php';

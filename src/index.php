@@ -2,11 +2,6 @@
 require_once __DIR__ . '/bootstrap.php';
 require_once ROOT_PATH . '/core/router.php';
 
-require_once ROOT_PATH . '/controllers/auth-controller.php';
-require_once ROOT_PATH . '/controllers/dashboard-controller.php';
-require_once ROOT_PATH . '/controllers/home-controller.php';
-require_once ROOT_PATH . '/controllers/admin-controller.php';
-
 checkSessionTimeout();
 $router = new Router();
 
