@@ -40,6 +40,8 @@ class AuthController {
                     $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
                     $_SESSION['logged_in'] = true;
 
+                    session_regenerate_id(true);
+
                     $this->userModel->logUserActivity($user['id'], "login");
                     header('Location: /dashboard');
                     exit;
@@ -98,6 +100,8 @@ class AuthController {
                                 $_SESSION['username'] = $user['username'];
                                 $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
                                 $_SESSION['logged_in'] = true;
+
+                                session_regenerate_id(true);
 
                                 $this->userModel->logUserActivity($user['id'], "registration");
                                 header('Location: /dashboard');
