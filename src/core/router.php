@@ -13,25 +13,29 @@ class Router {
         $this->routes[$key] = ['controller' => $controller, 'method' => $method];
     }
 
-    function dispatch() {
+    public function dispatch() {
         $method = $_SERVER['REQUEST_METHOD'];
         $request = $_SERVER['REQUEST_URI'];
-        $basePath = '/';
-
         $request = parse_url($request, PHP_URL_PATH);
-        $request = ltrim($request, '/'); 
-        $key = $method . ' /' . $request;
+        $request = '/' . ltrim($request, '/');
 
-        if(array_key_exists($key, $this->routes)) {
-            $route = $this->routes[$key]; 
-            $controllerName = $route['controller']; 
-            $methodName = $route['method'];
+        foreach ($this->routes as $routeKey => $route) {
+            list($routeMethod, $routePath) = explode(' ', $routeKey, 2);
 
-            $controller = new $controllerName();
-            $controller->$methodName();
+            if ($routeMethod !== $method) continue;
+
+            $pattern = preg_replace('/:\w+/', '([^/]+)', $routePath);
+            $pattern = '#^' . $pattern . '$#';
+
+            if (preg_match($pattern, $request, $matches)) {
+                array_shift($matches); 
+
+                $controller = new $route['controller']();
+                call_user_func_array([$controller, $route['method']], $matches);
+                return;
+            }
         }
-        else {
-            http_response_code(404);       
-        }
+
+        http_response_code(404);
     }
 }
